@@ -1,9 +1,6 @@
 package com.knsoft
 
 import com.knsoft.utils.FileUtils
-
-import java.time
-import java.io.File
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.types.{IntegerType, StringType, StructField, StructType}
 
@@ -26,8 +23,10 @@ object DataFrameCsvDemo{
     val departmentDF = spark.read.schema(simpleSchema).option("delimiter","\t").csv("D:/users/tinku/bigdata/data/task1/departments.tsv")
 
     val resultDF = employeeDF.join(departmentDF, employeeDF("dept")===departmentDF("deptid"))
-    resultDF.createOrReplaceTempView("result")
-    var finalDF = spark.sql("""select id as EMPLOYEE_ID, name as EMPLOYEE_NAME, deptname as EMPLOYEE_DEPT from result""")
+    val finalDF = resultDF.select("id","name", "deptname").withColumnRenamed("id", "EMPLOYEE_ID")
+      .withColumnRenamed("name", "EMPLOYEE_NAME")
+      .withColumnRenamed("deptname", "EMPLOYEE_DEPT")
+
 
     val timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
     val reportFolder = s"D:/users/tinku/bigdata/data/task1/reports/${timestamp}/"
